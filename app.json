@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "HangukGuesser",
-    "slug": "HangukGuesser",
+    "name": "HangukoGuesser",
+    "slug": "HangukoGuesser",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
