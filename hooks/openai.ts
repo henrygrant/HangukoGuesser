@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { useSentenceList } from "./useSentenceList";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -13,18 +14,33 @@ export interface GeneratedResponse {
   english: string;
 }
 
+export interface GenerateOptions {
+  language?: "korean" | "english";
+  numSentences?: number;
+}
+
 export function useGenerateKoreanSentence() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GeneratedResponse | null>(null);
+  const { addSentence } = useSentenceList();
 
-  const generate = async (words: string[]) => {
+  const generate = async (words: string[], options: GenerateOptions = {}) => {
     setIsLoading(true);
     setError(null);
     setResult(null);
     try {
-      const response = await generateKoreanSentence(words);
+      const response = await generateKoreanSentence(words, options);
       console.log(response);
+
+      // Add the sentence to the sentence list
+      if (response) {
+        const added = addSentence(response);
+        if (!added) {
+          setError("This sentence already exists in the list.");
+        }
+      }
+
       setResult(response);
     } catch (err) {
       setError(
@@ -44,8 +60,10 @@ export function useGenerateKoreanSentence() {
 }
 
 export async function generateKoreanSentence(
-  words: string[]
+  words: string[],
+  options: GenerateOptions = {}
 ): Promise<GeneratedResponse> {
+  const { language = "korean", numSentences = 1 } = options;
   try {
     const completion = await openai.chat.completions.create({
       model: "openai/gpt-4o",
@@ -54,15 +72,28 @@ export async function generateKoreanSentence(
         {
           role: "system",
           content:
-            "You are a Korean language expert. Generate a natural Korean sentence using the given word. The sentence should be appropriate for beginner learners.",
+            "You are a Korean language expert. Generate natural Korean sentences using the given words. The sentences should be appropriate for beginner learners.",
         },
         {
           role: "user",
-          content: `Generate a short beginner-level Korean sentence using some of
-           the following list of words: "${words}". 
-          Include both the Korean sentence and its English translation. 
-          The output should be in JSON format, with one property called 
-          "english" for the english sentence and one property called "korean" for the korean sentence. `,
+          content: `Generate ${numSentences} short beginner-level Korean ${
+            numSentences === 1 ? "sentence" : "sentences"
+          } using some of
+           the following list of words: "${words}".
+          Include both the Korean ${
+            numSentences === 1 ? "sentence" : "sentences"
+          } and ${language === "korean" ? "its" : "their"} English translation.
+          The output should be in JSON format, with one property called
+          "english" for the english ${
+            numSentences === 1 ? "sentence" : "sentences"
+          } and one property called "korean" for the korean ${
+            numSentences === 1 ? "sentence" : "sentences"
+          }.
+          ${
+            language === "english"
+              ? "The user prefers to see the English translation first."
+              : "The user prefers to see the Korean sentence first."
+          }`,
         },
       ],
       temperature: 0.7,
