@@ -1,24 +1,13 @@
 import React from "react";
-import {
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Switch,
-} from "react-native";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import Slider from "@react-native-community/slider";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
 interface OptionsModalProps {
   visible: boolean;
   onClose: () => void;
   language: "korean" | "english";
   setLanguage: (language: "korean" | "english") => void;
-  numSentences: number;
-  setNumSentences: (num: number) => void;
 }
 
 export function OptionsModal({
@@ -26,64 +15,58 @@ export function OptionsModal({
   onClose,
   language,
   setLanguage,
-  numSentences,
-  setNumSentences,
 }: OptionsModalProps) {
-  const colorScheme = useColorScheme() ?? "light";
-  const tintColor = Colors[colorScheme].tint;
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.centeredView}>
-        <ThemedView style={styles.modalView}>
-          <ThemedText type="subtitle" style={styles.modalTitle}>
-            Options
-          </ThemedText>
+      <View style={styles.modalOverlay}>
+        <ThemedView style={styles.modalContent}>
+          <ThemedText style={styles.title}>Settings</ThemedText>
 
-          <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>Output Language:</ThemedText>
-            <View style={styles.optionControl}>
-              <ThemedText>Korean</ThemedText>
-              <Switch
-                trackColor={{
-                  false: "#767577",
-                  true: Colors[colorScheme].tint,
-                }}
-                thumbColor={language === "english" ? tintColor : "#f4f3f4"}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={() =>
-                  setLanguage(language === "korean" ? "english" : "korean")
-                }
-                value={language === "english"}
-              />
-              <ThemedText>English</ThemedText>
+          <View style={styles.section}>
+            <ThemedText style={styles.sectionTitle}>Initial Language</ThemedText>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  language === "korean" && styles.buttonSelected,
+                ]}
+                onPress={() => setLanguage("korean")}
+              >
+                <ThemedText
+                  style={[
+                    styles.buttonText,
+                    language === "korean" && styles.buttonTextSelected,
+                  ]}
+                >
+                  Korean
+                </ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  language === "english" && styles.buttonSelected,
+                ]}
+                onPress={() => setLanguage("english")}
+              >
+                <ThemedText
+                  style={[
+                    styles.buttonText,
+                    language === "english" && styles.buttonTextSelected,
+                  ]}
+                >
+                  English
+                </ThemedText>
+              </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.optionRow}>
-            <ThemedText style={styles.optionLabel}>
-              Number of Sentences: {numSentences}
-            </ThemedText>
-            <View style={styles.sliderContainer}>
-              <Slider
-                style={styles.slider}
-                minimumValue={1}
-                maximumValue={10}
-                step={1}
-                value={numSentences}
-                onValueChange={(value: number) => setNumSentences(value)}
-                minimumTrackTintColor={tintColor}
-                maximumTrackTintColor="#000000"
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <ThemedText style={styles.buttonText}>Save Options</ThemedText>
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <ThemedText style={styles.closeButtonText}>Done</ThemedText>
           </TouchableOpacity>
         </ThemedView>
       </View>
@@ -92,68 +75,69 @@ export function OptionsModal({
 }
 
 const styles = StyleSheet.create({
-  centeredView: {
+  modalOverlay: {
     flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  modalView: {
-    margin: 20,
-    borderRadius: 12,
+  modalContent: {
+    width: "90%",
+    maxWidth: 400,
     padding: 24,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: "85%",
+    borderRadius: 16,
+    backgroundColor: "rgba(31,31,31,1)",
   },
-  modalTitle: {
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  section: {
     marginBottom: 24,
   },
-  optionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 20,
-  },
-  optionLabel: {
+  sectionTitle: {
     fontSize: 16,
-    fontWeight: "500",
-    marginRight: 10,
+    fontWeight: "600",
+    marginBottom: 12,
+    opacity: 0.8,
   },
-  optionControl: {
+  buttonGroup: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: 150,
-  },
-  sliderContainer: {
-    width: "100%",
-    marginTop: 10,
-  },
-  slider: {
-    width: "100%",
-    height: 40,
+    gap: 8,
+    justifyContent: "center",
   },
   button: {
-    backgroundColor: "#007AFF",
+    flex: 1,
     padding: 12,
     borderRadius: 8,
-    marginTop: 24,
+    borderWidth: 2,
+    borderColor: "rgba(34, 139, 34, 0.2)",
+    backgroundColor: "transparent",
     alignItems: "center",
-    width: "100%",
+  },
+  buttonSelected: {
+    backgroundColor: "rgba(34, 139, 34, 0.1)",
+    borderColor: "#228B22",
   },
   buttonText: {
-    color: "white",
-    fontWeight: "600",
     fontSize: 16,
-    textAlign: "center",
+    fontWeight: "500",
+  },
+  buttonTextSelected: {
+    color: "#228B22",
+    fontWeight: "600",
+  },
+  closeButton: {
+    backgroundColor: "#228B22",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

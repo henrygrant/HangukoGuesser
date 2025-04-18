@@ -1,12 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Platform,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
+import { useState } from "react";
 import { Sentence } from "@/types";
 
 interface SentenceCardProps {
@@ -14,106 +9,77 @@ interface SentenceCardProps {
   initialLanguage: "korean" | "english";
 }
 
-const SentenceCard = ({ sentence, initialLanguage }: SentenceCardProps) => {
-  const [flipped, setFlipped] = useState(false);
-  const [shownLanguage, setShownLanguage] = useState<"korean" | "english">(
-    initialLanguage
-  );
+export default function SentenceCard({ sentence, initialLanguage }: SentenceCardProps) {
+  const [showingKorean, setShowingKorean] = useState(initialLanguage === "korean");
 
-  useEffect(() => {
-    setShownLanguage(initialLanguage);
-    setFlipped(false);
-  }, [initialLanguage]);
-
-  useEffect(() => {
-    if (flipped) {
-      shownLanguage === "korean"
-        ? setShownLanguage("english")
-        : setShownLanguage("korean");
-    }
-  }, [flipped]);
-
-  const flipAnimation = new Animated.Value(0, {
-    useNativeDriver: Platform.OS !== "web",
-  });
-  const frontInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 180],
-    outputRange: ["0deg", "180deg"],
-  });
-  const backInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 180],
-    outputRange: ["180deg", "360deg"],
-  });
-
-  const handleFlip = () => {
-    setFlipped(!flipped);
-    Animated.spring(flipAnimation, {
-      toValue: flipped ? 0 : 180,
-      friction: 8,
-      tension: 10,
-      useNativeDriver: Platform.OS !== "web",
-    }).start();
+  const toggleLanguage = () => {
+    setShowingKorean(!showingKorean);
   };
 
   return (
-    <TouchableOpacity onPress={handleFlip}>
-      <View style={styles.card}>
-        <Animated.View
-          style={[
-            styles.face,
-            styles.faceFront,
-            { transform: [{ rotateY: frontInterpolate }] },
-          ]}
-        >
-          <ThemedText style={styles.text}>
-            {shownLanguage === "korean" ? sentence.korean : sentence.english}
+    <TouchableOpacity onPress={toggleLanguage} style={styles.touchable}>
+      <ThemedView style={styles.container}>
+        <View style={styles.languageSection}>
+          <ThemedText style={styles.label}>
+            {showingKorean ? "Korean" : "English"}
           </ThemedText>
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.face,
-            styles.faceBack,
-            { transform: [{ rotateY: backInterpolate }] },
-          ]}
-        >
-          <ThemedText style={styles.text}>
-            {shownLanguage === "korean" ? sentence.english : sentence.korean}
+          <ThemedText style={styles.mainText}>
+            {showingKorean ? sentence.korean : sentence.english}
           </ThemedText>
-        </Animated.View>
-      </View>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.instructionSection}>
+          <ThemedText style={styles.label}>Tap to see the</ThemedText>
+          <ThemedText style={styles.secondaryText}>
+            {showingKorean ? "English" : "Korean"} translation
+          </ThemedText>
+        </View>
+      </ThemedView>
     </TouchableOpacity>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  card: {
+  touchable: {
     width: "100%",
-    height: 150,
-    margin: 10,
+    maxWidth: 600,
   },
-  face: {
-    width: "100%",
-    height: "100%",
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    justifyContent: "center",
+  container: {
+    padding: 24,
+    borderRadius: 16,
+    backgroundColor: "rgba(34, 139, 34, 0.1)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  languageSection: {
+    marginBottom: 16,
+  },
+  instructionSection: {
     alignItems: "center",
-    backfaceVisibility: "hidden",
   },
-  faceFront: {
-    backgroundColor: "#f0f0f0",
-  },
-  faceBack: {
-    backgroundColor: "#ddd",
-    position: "absolute",
-    top: 0,
-  },
-  text: {
+  label: {
     fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    opacity: 0.6,
+  },
+  mainText: {
+    fontSize: 28,
+    fontWeight: "600",
+    lineHeight: 36,
     textAlign: "center",
-    color: "#000",
+  },
+  secondaryText: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "#228B22",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    marginVertical: 16,
   },
 });
-
-export default SentenceCard;

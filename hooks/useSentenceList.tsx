@@ -6,7 +6,7 @@ import React, {
   useEffect,
 } from "react";
 import { Word, Sentence } from "@/types";
-import { generateKoreanSentence } from "./openai";
+import { generateKoreanSentence } from "../services/openai";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type SentenceListContextType = {

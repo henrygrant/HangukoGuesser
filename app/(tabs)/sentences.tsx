@@ -1,24 +1,18 @@
-import { FlatList, StyleSheet, View, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
+import { StyleSheet, FlatList, View, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSentenceList } from "@/hooks/useSentenceList";
-import { useWordList } from "@/hooks/useWordList";
 import SentenceDetail from "@/components/SentenceDetail";
 import { useState, useMemo } from "react";
 
 export default function SentencesScreen() {
   const { sentences, generateSentences, error, isLoading } = useSentenceList();
-  const { words } = useWordList();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const insets = useSafeAreaInsets();
 
   const handleGeneratePress = () => {
-    // Check if any words are selected
-    const selectedWords = words.filter((word) => word.selected);
-    // If there are selected words, use only those; otherwise use all words
-    const wordsToUse = selectedWords.length > 0 ? selectedWords : words;
-    generateSentences(wordsToUse);
+    generateSentences([]);  // Pass empty array to use all words
   };
 
   const filteredSentences = useMemo(() => {
@@ -33,8 +27,6 @@ export default function SentencesScreen() {
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top + 16 }]}>
-
-
       <TouchableOpacity style={styles.button} onPress={handleGeneratePress}>
         <ThemedText style={styles.buttonText}>Generate Sentences</ThemedText>
       </TouchableOpacity>
@@ -53,9 +45,10 @@ export default function SentencesScreen() {
           placeholder="Search sentences..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholderTextColor="rgba(0, 0, 0, 0.5)"
+          placeholderTextColor="#7f7f7f"
         />
       </View>
+
       {error && (
         <View style={styles.messageContainer}>
           <ThemedText style={[styles.messageText, { color: "red" }]}>
@@ -73,9 +66,7 @@ export default function SentencesScreen() {
       <FlatList
         data={filteredSentences}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <SentenceDetail sentence={item} />
-        )}
+        renderItem={({ item }) => <SentenceDetail sentence={item} />}
         contentContainerStyle={styles.listContainer}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         showsVerticalScrollIndicator={false}
@@ -100,11 +91,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     fontSize: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
   },
   button: {
     backgroundColor: "#228B22",

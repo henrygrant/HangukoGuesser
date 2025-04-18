@@ -58,7 +58,7 @@ export default function WordListScreen() {
           placeholder="Search words..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholderTextColor="rgba(0, 0, 0, 0.5)"
+          placeholderTextColor="#7f7f7f"
         />
       </View>
 
@@ -68,6 +68,7 @@ export default function WordListScreen() {
           placeholder="Enter a Korean word"
           value={newWord}
           onChangeText={setNewWord}
+          placeholderTextColor="#7f7f7f"
         />
         <TouchableOpacity style={styles.addButton} onPress={handleAddWord}>
           <ThemedText style={styles.buttonText}>Add</ThemedText>

@@ -1,4 +1,4 @@
-import { generateKoreanSentence, GeneratedResponse } from "../openai";
+import { generateKoreanSentence, GeneratedResponse } from "../../services/openai";
 
 describe("generateKoreanSentence", () => {
   it("should generate a Korean sentence with the given words", async () => {
