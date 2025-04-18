@@ -6,11 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import wordsData from "@/assets/words.json";
-
-export type Word = {
-  value: string;
-  selected: boolean;
-};
+import { Word } from "@/types";
 
 type WordListContextType = {
   words: Word[];

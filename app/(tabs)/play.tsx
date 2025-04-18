@@ -7,17 +7,16 @@ import {
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useGenerateKoreanSentence } from "@/hooks/openai";
 import { useState } from "react";
 import { useWordList } from "@/hooks/useWordList";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { OptionsModal } from "@/components/OptionsModal";
 import { useSentenceList } from "@/hooks/useSentenceList";
+import SentenceCard from "@/components/SentenceCard";
 
 export default function PlayScreen() {
-  const { generate, isLoading, error, result } = useGenerateKoreanSentence();
   const { words } = useWordList();
-  const { sentences } = useSentenceList();
+  const { sentences, generateSentences, error, isLoading } = useSentenceList();
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [language, setLanguage] = useState<"korean" | "english">("korean");
@@ -30,32 +29,23 @@ export default function PlayScreen() {
     const selectedWords = words.filter((word) => word.selected);
 
     // If there are selected words, use only those; otherwise use all words
-    const wordsToUse =
-      selectedWords.length > 0
-        ? selectedWords.map((word) => word.value)
-        : words.map((word) => word.value);
-
+    const wordsToUse = selectedWords.length > 0 ? selectedWords : words;
     // Pass the language and numSentences options
-    generate(wordsToUse, {
-      language,
-      numSentences,
-    });
+    generateSentences(wordsToUse);
   };
 
-  const renderItem = ({
-    item,
-  }: {
-    item: { korean: string; english: string };
-  }) => (
-    <ThemedView style={styles.sentenceContainer}>
-      <ThemedText style={styles.sentenceText}>
-        {language === "korean" ? item.korean : item.english}
-      </ThemedText>
-      <ThemedText style={styles.sentenceTranslation}>
-        {language === "korean" ? item.english : item.korean}
-      </ThemedText>
-    </ThemedView>
-  );
+  const handleGeneratePress = () => {
+    setShowAnswer(false);
+
+    // Check if any words are selected
+    const selectedWords = words.filter((word) => word.selected);
+
+    // If there are selected words, use only those; otherwise use all words
+    const wordsToUse = selectedWords.length > 0 ? selectedWords : words;
+
+    // Pass the language and numSentences options
+    generateSentences(wordsToUse);
+  };
 
   return (
     <ThemedView style={[styles.container]}>
@@ -81,13 +71,16 @@ export default function PlayScreen() {
         numSentences={numSentences}
         setNumSentences={setNumSentences}
       />
-
-      <TouchableOpacity style={styles.button} onPress={handleStartPress}>
+      <TouchableOpacity style={styles.button} onPress={handleGeneratePress}>
+        <ThemedText style={styles.buttonText}>Generate Sentences</ThemedText>
+      </TouchableOpacity>
+      <ThemedText>{JSON.stringify(sentences)}</ThemedText>
+      {/* <TouchableOpacity style={styles.button} onPress={handleStartPress}>
         <ThemedText style={styles.buttonText}>
           Generate{" "}
           {numSentences === 1 ? "a sentence" : `${numSentences} sentences`}
         </ThemedText>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {error && (
         <ThemedView style={styles.wordContainer}>
@@ -105,7 +98,9 @@ export default function PlayScreen() {
 
       <FlatList
         data={sentences}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <SentenceCard sentence={item} initialLanguage={language} />
+        )}
         keyExtractor={(item, index) => index.toString()}
       />
     </ThemedView>

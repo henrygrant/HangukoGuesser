@@ -11,10 +11,15 @@ import { ThemedView } from "@/components/ThemedView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import { useWordList } from "@/hooks/useWordList";
+import { useSentenceList } from "@/hooks/useSentenceList";
 
 export default function WordListScreen() {
   const { words, addWord, toggleWordSelection } = useWordList();
+  const { sentences } = useSentenceList();
   const [newWord, setNewWord] = useState<string>("");
+  const [isBrowsingWords, setIsBrowsingWords] = useState(true);
+
+  const toggleBrowsingMode = () => setIsBrowsingWords(!isBrowsingWords);
 
   const handleWordPress = (word: string) => {
     toggleWordSelection(word);
@@ -40,8 +45,17 @@ export default function WordListScreen() {
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
       <ThemedText type="title" style={styles.title}>
-        Korean Words
+        Korean {isBrowsingWords ? "Words" : "Sentences"}
       </ThemedText>
+
+      <TouchableOpacity
+        onPress={toggleBrowsingMode}
+        style={styles.toggleButton}
+      >
+        <ThemedText style={styles.toggleButtonText}>
+          {isBrowsingWords ? "Browse Sentences" : "Browse Words"}
+        </ThemedText>
+      </TouchableOpacity>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -55,30 +69,49 @@ export default function WordListScreen() {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={words}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => handleWordPress(item.value)}
-            style={[styles.wordItem, item.selected && styles.selectedWordItem]}
-          >
-            <ThemedText
+      {isBrowsingWords ? (
+        <FlatList
+          data={words}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleWordPress(item.value)}
               style={[
-                styles.wordText,
-                item.selected && styles.selectedWordText,
+                styles.wordItem,
+                item.selected && styles.selectedWordItem,
               ]}
             >
-              {item.value}
-              {/* {JSON.stringify(item)} */}
-            </ThemedText>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.listContainer}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        showsVerticalScrollIndicator={false}
-        numColumns={2}
-      />
+              <ThemedText
+                style={[
+                  styles.wordText,
+                  item.selected && styles.selectedWordText,
+                ]}
+              >
+                {item.value}
+                {/* {JSON.stringify(item)} */}
+              </ThemedText>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={styles.listContainer}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          showsVerticalScrollIndicator={false}
+          numColumns={1}
+        />
+      ) : (
+        <FlatList
+          data={sentences}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={[styles.wordItem]}>
+              <ThemedText style={[styles.wordText]}>{item.korean}</ThemedText>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={styles.listContainer}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          showsVerticalScrollIndicator={false}
+          numColumns={1}
+        />
+      )}
     </ThemedView>
   );
 }
@@ -109,7 +142,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#228B22",
     padding: 12,
     borderRadius: 8,
     justifyContent: "center",
@@ -142,7 +175,7 @@ const styles = StyleSheet.create({
   },
   selectedWordItem: {
     backgroundColor: "rgba(100, 255, 100, 0.2)",
-    borderColor: "#007AFF",
+    borderColor: "#228B22",
   },
   wordText: {
     fontSize: 20,
@@ -151,9 +184,22 @@ const styles = StyleSheet.create({
   },
   selectedWordText: {
     fontWeight: "bold",
-    color: "#007AFF",
+    color: "#228B22",
   },
   separator: {
     height: 12,
+  },
+  toggleButton: {
+    backgroundColor: "#228B22",
+    padding: 12,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  toggleButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });

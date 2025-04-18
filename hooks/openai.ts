@@ -1,6 +1,5 @@
 import OpenAI from "openai";
-import { useState, useContext } from "react";
-import { useSentenceList } from "./useSentenceList";
+import { Word, Sentence } from "@/types";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -10,64 +9,40 @@ const openai = new OpenAI({
 });
 
 export interface GeneratedResponse {
-  korean: string;
-  english: string;
-}
-
-export interface GenerateOptions {
-  language?: "korean" | "english";
-  numSentences?: number;
-}
-
-export function useGenerateKoreanSentence() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<GeneratedResponse | null>(null);
-  const { addSentence } = useSentenceList();
-
-  const generate = async (words: string[], options: GenerateOptions = {}) => {
-    setIsLoading(true);
-    setError(null);
-    setResult(null);
-    try {
-      const response = await generateKoreanSentence(words, options);
-      console.log(response);
-
-      // Add the sentence to the sentence list
-      if (response) {
-        const added = addSentence(response);
-        if (!added) {
-          setError("This sentence already exists in the list.");
-        }
-      }
-
-      setResult(response);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to generate sentence"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return {
-    generate,
-    isLoading,
-    error,
-    result,
-  };
+  sentences: Sentence[];
 }
 
 export async function generateKoreanSentence(
-  words: string[],
-  options: GenerateOptions = {}
-): Promise<GeneratedResponse> {
-  const { language = "korean", numSentences = 1 } = options;
+  words: Word[]
+): Promise<Sentence[]> {
   try {
     const completion = await openai.chat.completions.create({
       model: "openai/gpt-4o",
-      response_format: { type: "json_object" },
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          schema: {
+            name: 'weewoo',
+            type: "object",
+            properties: {
+              sentences: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    english: { type: "string" },
+                    korean: { type: "string" }
+                  },
+                  required: ["english", "korean"],
+                  additionalProperties: false
+                }
+              }
+            },
+            required: ["sentences"],
+            additionalProperties: false
+          }
+        }
+      }
       messages: [
         {
           role: "system",
@@ -76,36 +51,28 @@ export async function generateKoreanSentence(
         },
         {
           role: "user",
-          content: `Generate ${numSentences} short beginner-level Korean ${
-            numSentences === 1 ? "sentence" : "sentences"
-          } using some of
-           the following list of words: "${words}".
-          Include both the Korean ${
-            numSentences === 1 ? "sentence" : "sentences"
-          } and ${language === "korean" ? "its" : "their"} English translation.
-          The output should be in JSON format, with one property called
-          "english" for the english ${
-            numSentences === 1 ? "sentence" : "sentences"
-          } and one property called "korean" for the korean ${
-            numSentences === 1 ? "sentence" : "sentences"
-          }.
-          ${
-            language === "english"
-              ? "The user prefers to see the English translation first."
-              : "The user prefers to see the Korean sentence first."
-          }`,
+          content: `TASK: 
+            for each of the given words, generate a beginner-level sentence in korean. 
+            use the other words in the list as context of what words the user knows. 
+            you can add other words, but keep in mind that the user is a beginner-intermediate 
+            level korean speaker. Sentences should be a mix of past and present tense.
+
+            INPUT:
+            ${words.map((w) => w.value).join(", ")}`,
         },
       ],
       temperature: 0.7,
-      max_tokens: 150,
+      max_tokens: words.length * 30,
     });
 
     const response = completion.choices[0].message.content;
+    console.log(response);
     if (!response) {
       throw new Error("No response from OpenAI");
     }
-    const jsonResponse: GeneratedResponse = JSON.parse(response);
-    return jsonResponse;
+    const jsonResponse: GeneratedResponse = JSON.parse(response.sentences);
+    console.log("ai response:", jsonResponse);
+    return jsonResponse.sentences;
   } catch (error) {
     console.error("Error generating Korean sentence:", error);
     throw new Error("Failed to generate Korean sentence");

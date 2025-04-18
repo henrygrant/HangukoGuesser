@@ -34,18 +34,16 @@ export default function RootLayout() {
   }
 
   return (
-    <WordListProvider>
-      <SentenceListProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <WordListProvider>
+        <SentenceListProvider>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
           <StatusBar style="auto" />
-        </ThemeProvider>
-      </SentenceListProvider>
-    </WordListProvider>
+        </SentenceListProvider>
+      </WordListProvider>
+    </ThemeProvider>
   );
 }
