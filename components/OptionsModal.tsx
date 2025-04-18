@@ -68,12 +68,22 @@ export function OptionsModal({
             </View>
           </View>
 
-          {/* Add Words Button */}
           <TouchableOpacity
             style={styles.addWordsButton}
             onPress={() => {
               onClose();
               setTimeout(() => router.push("/manage-words"), 300);
+            }}
+            accessibilityLabel="Go to Manage Words"
+          >
+            <ThemedText style={styles.addWordsText}>Manage Words</ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.addWordsButton}
+            onPress={() => {
+              onClose();
+              setTimeout(() => router.push("/manage-sentences"), 300);
             }}
             accessibilityLabel="Go to Manage Words"
           >
