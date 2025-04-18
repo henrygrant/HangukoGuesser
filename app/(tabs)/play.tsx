@@ -6,12 +6,12 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import SentenceCard from "@/components/SentenceCard";
 import { OptionsModal } from "@/components/OptionsModal";
 import { ThemedText } from "@/components/ThemedText";
+import { Sentence } from "@/types";
 
 export default function PlayScreen() {
-  const { sentences } = useSentenceList();
+  const { sentences, removeSentence } = useSentenceList();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [language, setLanguage] = useState<"korean" | "english">("korean");
-  const [numSentences, setNumSentences] = useState<number>(1);
 
   const getRandomSentence = useCallback(() => {
     if (sentences.length === 0) return null;
@@ -29,6 +29,10 @@ export default function PlayScreen() {
     setCurrentSentence(getRandomSentence());
   };
 
+  const handleDelete = useCallback((sentence: Sentence) => {
+    removeSentence(sentence);
+  }, [removeSentence]);
+
   return (
     <ThemedView style={styles.container}>
       <TouchableOpacity
@@ -43,14 +47,12 @@ export default function PlayScreen() {
         onClose={() => setModalVisible(false)}
         language={language}
         setLanguage={setLanguage}
-        numSentences={numSentences}
-        setNumSentences={setNumSentences}
       />
 
       <View style={styles.cardContainer}>
         {currentSentence ? (
           <>
-            <SentenceCard sentence={currentSentence} initialLanguage={language} />
+            <SentenceCard sentence={currentSentence} initialLanguage={language} onDelete={handleDelete} />
             <TouchableOpacity style={styles.nextButton} onPress={handleNextSentence}>
               <ThemedText style={styles.buttonText}>Next Sentence</ThemedText>
             </TouchableOpacity>

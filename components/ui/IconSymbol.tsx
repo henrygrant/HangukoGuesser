@@ -21,6 +21,9 @@ const MAPPING = {
   play: "play-arrow",
   "menucard.fill": "menu-book",
   gear: "settings",
+  ellipsis: "more-vert",
+  trash: "delete",
+  add: "add",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],
