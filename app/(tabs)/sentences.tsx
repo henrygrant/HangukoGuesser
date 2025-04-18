@@ -1,115 +1,154 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
-import { useSentenceList } from "@/hooks/useSentenceList";
-import { ThemedView } from "@/components/ThemedView";
+import { FlatList, StyleSheet, View, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSentenceList } from "@/hooks/useSentenceList";
+import { useWordList } from "@/hooks/useWordList";
+import SentenceDetail from "@/components/SentenceDetail";
+import { useState, useMemo } from "react";
 
 export default function SentencesScreen() {
-  const { sentences } = useSentenceList();
+  const { sentences, generateSentences, error, isLoading } = useSentenceList();
+  const { words } = useWordList();
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const insets = useSafeAreaInsets();
 
+  const handleGeneratePress = () => {
+    // Check if any words are selected
+    const selectedWords = words.filter((word) => word.selected);
+    // If there are selected words, use only those; otherwise use all words
+    const wordsToUse = selectedWords.length > 0 ? selectedWords : words;
+    generateSentences(wordsToUse);
+  };
+
+  const filteredSentences = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return sentences;
+    
+    return sentences.filter(sentence => 
+      sentence.korean.toLowerCase().includes(query) || 
+      sentence.english.toLowerCase().includes(query)
+    );
+  }, [sentences, searchQuery]);
+
   return (
-    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+    <ThemedView style={[styles.container, { paddingTop: insets.top + 16 }]}>
+
+
+      <TouchableOpacity style={styles.button} onPress={handleGeneratePress}>
+        <ThemedText style={styles.buttonText}>Generate Sentences</ThemedText>
+      </TouchableOpacity>
+
+      <View style={styles.badgeContainer}>
+        <ThemedView style={styles.badge}>
+          <ThemedText style={styles.badgeText}>
+            {filteredSentences.length} of {sentences.length} {sentences.length === 1 ? "sentence" : "sentences"}
+          </ThemedText>
+        </ThemedView>
+      </View>
+      
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search sentences..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor="rgba(0, 0, 0, 0.5)"
+        />
+      </View>
+      {error && (
+        <View style={styles.messageContainer}>
+          <ThemedText style={[styles.messageText, { color: "red" }]}>
+            {error}
+          </ThemedText>
+        </View>
+      )}
+
+      {isLoading && (
+        <View style={styles.messageContainer}>
+          <ActivityIndicator size="large" color="#228B22" />
+        </View>
+      )}
+
       <FlatList
-        data={sentences}
+        data={filteredSentences}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity style={[styles.wordItem]}>
-            <ThemedText style={[styles.wordText]}>{item.korean}</ThemedText>
-          </TouchableOpacity>
+          <SentenceDetail sentence={item} />
         )}
         contentContainerStyle={styles.listContainer}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         showsVerticalScrollIndicator={false}
-        numColumns={1}
       />
     </ThemedView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
   },
-  title: {
-    marginBottom: 24,
-    fontSize: 24,
-    fontWeight: "bold",
+  searchContainer: {
+    marginBottom: 16,
   },
-  inputContainer: {
-    flexDirection: "row",
-    marginBottom: 24,
-  },
-  input: {
-    flex: 1,
+  searchInput: {
     height: 48,
     borderWidth: 1,
     borderColor: "#ccc",
     color: "#fff",
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginRight: 12,
     fontSize: 16,
   },
-  addButton: {
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  button: {
     backgroundColor: "#228B22",
     padding: 12,
     borderRadius: 8,
-    justifyContent: "center",
+    marginBottom: 8,
     alignItems: "center",
   },
   buttonText: {
     color: "white",
-    fontWeight: "600",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  badgeContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginBottom: 16,
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: "rgba(34, 139, 34, 0.1)",
+  },
+  badgeText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#228B22",
   },
   listContainer: {
-    paddingBottom: 24,
-  },
-  wordItem: {
-    flex: 1,
-    margin: 6,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "rgba(100, 100, 255, 0.1)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 80,
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  selectedWordItem: {
-    backgroundColor: "rgba(100, 255, 100, 0.2)",
-    borderColor: "#228B22",
-  },
-  wordText: {
-    fontSize: 20,
-    fontWeight: "500",
-    textAlign: "center",
-  },
-  selectedWordText: {
-    fontWeight: "bold",
-    color: "#228B22",
+    paddingBottom: 16,
   },
   separator: {
     height: 12,
   },
-  toggleButton: {
-    backgroundColor: "#228B22",
-    padding: 12,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+  messageContainer: {
+    padding: 16,
     marginBottom: 16,
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    borderRadius: 8,
+    alignItems: "center",
   },
-  toggleButtonText: {
-    color: "white",
-    fontWeight: "600",
+  messageText: {
     fontSize: 16,
+    fontWeight: "500",
   },
 });

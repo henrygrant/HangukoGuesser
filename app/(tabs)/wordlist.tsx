@@ -9,14 +9,17 @@ import {
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useWordList } from "@/hooks/useWordList";
 import { useSentenceList } from "@/hooks/useSentenceList";
+import WordDetail from "@/components/WordDetail";
 
 export default function WordListScreen() {
   const { words, addWord, toggleWordSelection } = useWordList();
   const { sentences } = useSentenceList();
   const [newWord, setNewWord] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const insets = useSafeAreaInsets();
 
   const handleWordPress = (word: string) => {
     toggleWordSelection(word);
@@ -37,10 +40,28 @@ export default function WordListScreen() {
     }
   };
 
-  const insets = useSafeAreaInsets();
+  const filteredWords = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return words;
+    
+    return words.filter(word => 
+      word.value.toLowerCase().includes(query) || 
+      (word.english?.toLowerCase().includes(query) ?? false)
+    );
+  }, [words, searchQuery]);
 
   return (
-    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+    <ThemedView style={[styles.container, { paddingTop: insets.top + 16 }]}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search words..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor="rgba(0, 0, 0, 0.5)"
+        />
+      </View>
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -53,28 +74,27 @@ export default function WordListScreen() {
         </TouchableOpacity>
       </View>
 
+      <View style={styles.badgeContainer}>
+        <ThemedView style={styles.badge}>
+          <ThemedText style={styles.badgeText}>
+            {filteredWords.length} of {words.length} {words.length === 1 ? "word" : "words"}
+          </ThemedText>
+        </ThemedView>
+      </View>
+
       <FlatList
-        data={words}
+        data={filteredWords}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => handleWordPress(item.value)}
-            style={[styles.wordItem, item.selected && styles.selectedWordItem]}
-          >
-            <ThemedText
-              style={[
-                styles.wordText,
-                item.selected && styles.selectedWordText,
-              ]}
-            >
-              {item.value}
-            </ThemedText>
-          </TouchableOpacity>
+          <WordDetail
+            word={item}
+            selected={item.selected}
+            onPress={handleWordPress}
+          />
         )}
         contentContainerStyle={styles.listContainer}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         showsVerticalScrollIndicator={false}
-        numColumns={1}
       />
     </ThemedView>
   );
@@ -85,14 +105,21 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  title: {
-    marginBottom: 24,
-    fontSize: 24,
-    fontWeight: "bold",
+  searchContainer: {
+    marginBottom: 16,
+  },
+  searchInput: {
+    height: 48,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    color: "#fff",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
   },
   inputContainer: {
     flexDirection: "row",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   input: {
     flex: 1,
@@ -118,52 +145,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   listContainer: {
-    paddingBottom: 24,
-  },
-  wordItem: {
-    flex: 1,
-    margin: 6,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "rgba(100, 100, 255, 0.1)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 80,
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  selectedWordItem: {
-    backgroundColor: "rgba(100, 255, 100, 0.2)",
-    borderColor: "#228B22",
-  },
-  wordText: {
-    fontSize: 20,
-    fontWeight: "500",
-    textAlign: "center",
-  },
-  selectedWordText: {
-    fontWeight: "bold",
-    color: "#228B22",
+    paddingBottom: 16,
   },
   separator: {
     height: 12,
   },
-  toggleButton: {
-    backgroundColor: "#228B22",
-    padding: 12,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+  badgeContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
     marginBottom: 16,
   },
-  toggleButtonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 16,
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: "rgba(34, 139, 34, 0.1)",
+  },
+  badgeText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#228B22",
   },
 });
