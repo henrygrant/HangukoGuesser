@@ -85,9 +85,9 @@ export function OptionsModal({
               onClose();
               setTimeout(() => router.push("/manage-sentences"), 300);
             }}
-            accessibilityLabel="Go to Manage Words"
+            accessibilityLabel="Go to Manage Sentences"
           >
-            <ThemedText style={styles.addWordsText}>Manage Words</ThemedText>
+            <ThemedText style={styles.addWordsText}>Manage Sentences</ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose} accessibilityLabel="Close Settings">
@@ -173,7 +173,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 8,
     marginBottom: 16,
-    marginTop: 8,
     justifyContent: "center",
   },
   addWordsText: {

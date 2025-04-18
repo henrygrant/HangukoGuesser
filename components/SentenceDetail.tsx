@@ -1,18 +1,27 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
+import { Ionicons } from '@expo/vector-icons';
 import { Sentence } from "@/types";
 
 interface SentenceDetailProps {
   sentence: Sentence;
+  onDelete?: () => void;
 }
 
-export default function SentenceDetail({ sentence }: SentenceDetailProps) {
+export default function SentenceDetail({ sentence, onDelete }: SentenceDetailProps) {
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.sentenceSection}>
-        <ThemedText style={styles.label}>Korean</ThemedText>
-        <ThemedText style={styles.korean}>{sentence.korean}</ThemedText>
+      <View style={styles.topRow}>
+        <View style={styles.sentenceSection}>
+          <ThemedText style={styles.label}>Korean</ThemedText>
+          <ThemedText style={styles.korean}>{sentence.korean}</ThemedText>
+        </View>
+        {!!onDelete && (
+          <TouchableOpacity style={styles.deleteButton} onPress={onDelete} accessibilityLabel="Delete sentence">
+            <Ionicons name="trash" size={20} color="#cc0000" />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.divider} />
       <View style={styles.sentenceSection}>
@@ -34,8 +43,16 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+    gap: 8,
+  },
   sentenceSection: {
     marginVertical: 8,
+    flex: 1,
   },
   label: {
     fontSize: 14,
@@ -56,5 +73,12 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "rgba(0, 0, 0, 0.1)",
     marginVertical: 8,
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(204,0,0,0.07)',
+    marginLeft: 12,
+    alignSelf: 'flex-start',
   },
 });

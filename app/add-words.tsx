@@ -4,11 +4,9 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useWordList } from "@/hooks/useWordList";
-import { useRouter } from "expo-router";
 
 export default function AddWordsScreen() {
   const { words, addWord } = useWordList();
-  const router = useRouter();
   const [word, setWord] = useState("");
   const [message, setMessage] = useState<string>("");
   const [messageColor, setMessageColor] = useState<string>("#228B22");
@@ -33,36 +31,32 @@ export default function AddWordsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.topRow}>
-        <TouchableOpacity
-          style={[styles.topRowButton, styles.goBackButton]}
-          onPress={() => router.push("/")}
-          accessibilityLabel="Go back home"
-        >
-          <ThemedText style={styles.goBackText}>{"← Home"}</ThemedText>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.topRowInput}
-          placeholder="Add a new Korean word..."
-          value={word}
-          onChangeText={setWord}
-          placeholderTextColor="#7f7f7f"
-          returnKeyType="done"
-          onSubmitEditing={handleAdd}
-        />
-        <TouchableOpacity style={[styles.topRowButton, styles.addButton]} onPress={handleAdd} accessibilityLabel="Add word">
-          <IconSymbol name="plus" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
-      {!!message && (
-        <ThemedText style={[styles.message, { color: messageColor }]}>{message}</ThemedText>
-      )}
-      <View style={styles.badgeContainer}>
-        <ThemedView style={styles.badge}>
-          <ThemedText style={styles.badgeText}>
-            {words.length} {words.length === 1 ? "word" : "words"}
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.header}>
+        <ThemedText style={styles.title}>Manage Words</ThemedText>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter a Korean word..."
+            value={word}
+            onChangeText={setWord}
+            placeholderTextColor="#7f7f7f"
+            returnKeyType="done"
+            onSubmitEditing={handleAdd}
+          />
+          <TouchableOpacity style={styles.addButton} onPress={handleAdd} accessibilityLabel="Add word">
+            <IconSymbol name="plus" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+        {!!message && (
+          <ThemedText style={[styles.message, { color: messageColor }]}>{message}</ThemedText>
+        )}
+        <View style={styles.badgeContainer}>
+          <ThemedView style={styles.badge}>
+            <ThemedText style={styles.badgeText}>
+              {words.length} {words.length === 1 ? "word" : "words"}
+            </ThemedText>
+          </ThemedView>
+        </View>
       </View>
       <View style={styles.wordsList}>
         {words.length === 0 ? (
@@ -99,39 +93,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#181c20",
+  },
+  header: {
     padding: 16,
   },
-  topRow: {
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 24,
+    color: "#228B22",
+    alignSelf: "center",
+  },
+  inputRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
     marginBottom: 16,
   },
-  topRowButton: {
-    height: 48,
-    minWidth: 48,
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  topRowInput: {
-    height: 48,
+  input: {
     flex: 1,
-    borderWidth: 1,
+    height: 48,
     borderColor: "#ccc",
-    color: "#fff",
+    borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
-    fontSize: 16,
-    marginHorizontal: 8,
-  },
-  goBackButton: {
-    backgroundColor: "rgba(34, 139, 34, 0.1)",
+    fontSize: 18,
+    marginRight: 8,
+    color: "#fff",
+    backgroundColor: "#23272e",
   },
   addButton: {
     backgroundColor: "#228B22",
-    marginLeft: 0,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
   message: {
     fontSize: 15,
@@ -208,9 +203,5 @@ const styles = StyleSheet.create({
     color: "#888",
     textAlign: "center",
     marginTop: 8,
-  },
-  goBackText: {
-    fontSize: 16,
-    color: "#fff",
   },
 });

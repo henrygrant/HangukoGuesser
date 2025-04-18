@@ -15,6 +15,7 @@ type SentenceListContextType = {
   isLoading: boolean;
   addSentence: (sentence: Sentence) => boolean;
   removeSentence: (sentence: Sentence) => void;
+  removeAllSentences: () => void;
   generateSentences: (words: Word[]) => void;
 };
 
@@ -86,6 +87,11 @@ export function SentenceListProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  // Remove all sentences from the list
+  const removeAllSentences = () => {
+    setSentences([]);
+  };
+
   // Generate sentences based on the provided words
   const generateSentences = async (
     words: Word[]
@@ -120,6 +126,7 @@ export function SentenceListProvider({ children }: { children: ReactNode }) {
         isLoading,
         addSentence,
         removeSentence,
+        removeAllSentences,
         generateSentences,
       }}
     >
@@ -144,6 +151,7 @@ export function useSentenceList() {
     isLoading: context.isLoading,
     addSentence: context.addSentence,
     removeSentence: context.removeSentence,
+    removeAllSentences: context.removeAllSentences,
     generateSentences: context.generateSentences,
   };
 }
