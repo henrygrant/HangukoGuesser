@@ -1,74 +1,21 @@
-import {
-  StyleSheet,
-  FlatList,
-  Alert,
-  TouchableOpacity,
-  TextInput,
-  View,
-} from "react-native";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useState } from "react";
-import { useWordList } from "@/hooks/useWordList";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { useSentenceList } from "@/hooks/useSentenceList";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function WordListScreen() {
-  const { words, addWord, toggleWordSelection } = useWordList();
+export default function SentencesScreen() {
   const { sentences } = useSentenceList();
-  const [newWord, setNewWord] = useState<string>("");
-
-  const handleWordPress = (word: string) => {
-    toggleWordSelection(word);
-  };
-
-  const handleAddWord = () => {
-    const success = addWord(newWord);
-
-    if (success) {
-      setNewWord("");
-      Alert.alert("Success", "Word added successfully");
-    } else {
-      if (newWord.trim() === "") {
-        Alert.alert("Error", "Please enter a word");
-      } else {
-        Alert.alert("Error", "This word already exists in the list");
-      }
-    }
-  };
-
   const insets = useSafeAreaInsets();
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter a Korean word"
-          value={newWord}
-          onChangeText={setNewWord}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={handleAddWord}>
-          <ThemedText style={styles.buttonText}>Add</ThemedText>
-        </TouchableOpacity>
-      </View>
-
       <FlatList
-        data={words}
+        data={sentences}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => handleWordPress(item.value)}
-            style={[styles.wordItem, item.selected && styles.selectedWordItem]}
-          >
-            <ThemedText
-              style={[
-                styles.wordText,
-                item.selected && styles.selectedWordText,
-              ]}
-            >
-              {item.value}
-            </ThemedText>
+          <TouchableOpacity style={[styles.wordItem]}>
+            <ThemedText style={[styles.wordText]}>{item.korean}</ThemedText>
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.listContainer}
@@ -79,7 +26,6 @@ export default function WordListScreen() {
     </ThemedView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -74,13 +74,7 @@ export default function PlayScreen() {
       <TouchableOpacity style={styles.button} onPress={handleGeneratePress}>
         <ThemedText style={styles.buttonText}>Generate Sentences</ThemedText>
       </TouchableOpacity>
-      <ThemedText>{JSON.stringify(sentences)}</ThemedText>
-      {/* <TouchableOpacity style={styles.button} onPress={handleStartPress}>
-        <ThemedText style={styles.buttonText}>
-          Generate{" "}
-          {numSentences === 1 ? "a sentence" : `${numSentences} sentences`}
-        </ThemedText>
-      </TouchableOpacity> */}
+      {/* <ThemedText>{JSON.stringify(sentences)}</ThemedText> */}
 
       {error && (
         <ThemedView style={styles.wordContainer}>

@@ -21,8 +21,8 @@ export async function generateKoreanSentence(
       response_format: {
         type: "json_schema",
         json_schema: {
+          name: "sentences",
           schema: {
-            name: 'weewoo',
             type: "object",
             properties: {
               sentences: {
@@ -31,18 +31,18 @@ export async function generateKoreanSentence(
                   type: "object",
                   properties: {
                     english: { type: "string" },
-                    korean: { type: "string" }
+                    korean: { type: "string" },
                   },
                   required: ["english", "korean"],
-                  additionalProperties: false
-                }
-              }
+                  additionalProperties: false,
+                },
+              },
             },
             required: ["sentences"],
-            additionalProperties: false
-          }
-        }
-      }
+            additionalProperties: false,
+          },
+        },
+      },
       messages: [
         {
           role: "system",
@@ -70,7 +70,7 @@ export async function generateKoreanSentence(
     if (!response) {
       throw new Error("No response from OpenAI");
     }
-    const jsonResponse: GeneratedResponse = JSON.parse(response.sentences);
+    const jsonResponse: GeneratedResponse = JSON.parse(response);
     console.log("ai response:", jsonResponse);
     return jsonResponse.sentences;
   } catch (error) {

@@ -91,6 +91,7 @@ export function SentenceListProvider({ children }: { children: ReactNode }) {
     words: Word[]
   ): Promise<Sentence[] | null> => {
     try {
+      setError(null);
       setIsLoading(true);
       const response = await generateKoreanSentence(words);
 

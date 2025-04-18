@@ -45,6 +45,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="sentences"
+        options={{
+          title: "Sentences",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="menucard.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
