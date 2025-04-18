@@ -13,65 +13,45 @@ import { useState, useMemo } from "react";
 import { useWordList } from "@/hooks/useWordList";
 import { useSentenceList } from "@/hooks/useSentenceList";
 import WordDetail from "@/components/WordDetail";
+import { useRouter } from "expo-router";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export default function WordListScreen() {
-  const { words, addWord, toggleWordSelection } = useWordList();
+  const { words, toggleWordSelection } = useWordList();
   const { sentences } = useSentenceList();
-  const [newWord, setNewWord] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const handleWordPress = (word: string) => {
     toggleWordSelection(word);
   };
 
-  const handleAddWord = () => {
-    const success = addWord(newWord);
-
-    if (success) {
-      setNewWord("");
-      Alert.alert("Success", "Word added successfully");
-    } else {
-      if (newWord.trim() === "") {
-        Alert.alert("Error", "Please enter a word");
-      } else {
-        Alert.alert("Error", "This word already exists in the list");
-      }
-    }
-  };
-
   const filteredWords = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return words;
-    
-    return words.filter(word => 
-      word.value.toLowerCase().includes(query) || 
+
+    return words.filter(word =>
+      word.value.toLowerCase().includes(query) ||
       (word.english?.toLowerCase().includes(query) ?? false)
     );
   }, [words, searchQuery]);
 
   return (
     <ThemedView style={[styles.container, { paddingTop: insets.top + 16 }]}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search words..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor="#7f7f7f"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter a Korean word"
-          value={newWord}
-          onChangeText={setNewWord}
-          placeholderTextColor="#7f7f7f"
-        />
-        <TouchableOpacity style={styles.addButton} onPress={handleAddWord}>
-          <ThemedText style={styles.buttonText}>Add</ThemedText>
+      <View style={styles.searchRow}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search words..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#7f7f7f"
+          />
+        </View>
+        <TouchableOpacity style={styles.addWordsButton} onPress={() => router.push("/manage-words")}>
+          <IconSymbol name="plus" size={20} color="#fff" />
+          <ThemedText style={styles.addWordsText}>Manage Words</ThemedText>
         </TouchableOpacity>
       </View>
 
@@ -106,8 +86,14 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  searchContainer: {
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
+  },
+  searchContainer: {
+    flex: 1,
+    marginRight: 8,
   },
   searchInput: {
     height: 48,
@@ -118,32 +104,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 16,
   },
-  inputContainer: {
+  addWordsButton: {
     flexDirection: "row",
-    marginBottom: 16,
-  },
-  input: {
-    flex: 1,
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    color: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginRight: 12,
-    fontSize: 16,
-  },
-  addButton: {
-    backgroundColor: "#228B22",
-    padding: 12,
-    borderRadius: 8,
-    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#228B22",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 8,
   },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
+  addWordsText: {
+    color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 6,
   },
   listContainer: {
     paddingBottom: 16,

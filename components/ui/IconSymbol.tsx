@@ -23,7 +23,8 @@ const MAPPING = {
   gear: "settings",
   ellipsis: "more-vert",
   trash: "delete",
-  add: "add",
+  plus: "add",
+  add: undefined,
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],

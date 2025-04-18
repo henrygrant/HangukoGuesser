@@ -2,6 +2,8 @@ import React from "react";
 import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
+import { useRouter } from "expo-router";
+import { IconSymbol } from "./ui/IconSymbol";
 
 interface OptionsModalProps {
   visible: boolean;
@@ -16,6 +18,7 @@ export function OptionsModal({
   language,
   setLanguage,
 }: OptionsModalProps) {
+  const router = useRouter();
   return (
     <Modal
       animationType="fade"
@@ -65,7 +68,19 @@ export function OptionsModal({
             </View>
           </View>
 
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          {/* Add Words Button */}
+          <TouchableOpacity
+            style={styles.addWordsButton}
+            onPress={() => {
+              onClose();
+              setTimeout(() => router.push("/manage-words"), 300);
+            }}
+            accessibilityLabel="Go to Manage Words"
+          >
+            <ThemedText style={styles.addWordsText}>Manage Words</ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.closeButton} onPress={onClose} accessibilityLabel="Close Settings">
             <ThemedText style={styles.closeButtonText}>Done</ThemedText>
           </TouchableOpacity>
         </ThemedView>
@@ -139,5 +154,22 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  addWordsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#228B22",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    marginBottom: 16,
+    marginTop: 8,
+    justifyContent: "center",
+  },
+  addWordsText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 6,
   },
 });

@@ -29,7 +29,7 @@ export function WordListProvider({ children }: { children: ReactNode }) {
     const words = wordsData.map((word: string) => ({
       value: word,
       selected: false,
-    }));
+    })).sort((a, b) => a.value.localeCompare(b.value));
     setWords(words);
   }, []);
 
