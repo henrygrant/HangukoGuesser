@@ -70,7 +70,7 @@ export function OptionsModal({
             </View>
           </View>
 
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>Theme</ThemedText>
             <View style={styles.buttonGroup}>
               <TouchableOpacity
@@ -122,7 +122,7 @@ export function OptionsModal({
                 </ThemedText>
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
 
           <TouchableOpacity
             style={styles.addWordsButton}

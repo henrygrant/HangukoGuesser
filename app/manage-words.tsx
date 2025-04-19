@@ -6,6 +6,9 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useAppStore } from "@/stores/useAppStore";
 import { useRouter } from "expo-router";
 import Badge from "@/components/Badge";
+import * as DocumentPicker from 'expo-document-picker';
+import { parseKoreanVocab } from "@/services/anki";
+
 
 export default function AddWordsScreen() {
   const { words, addWord } = useAppStore();
@@ -13,6 +16,39 @@ export default function AddWordsScreen() {
   const [word, setWord] = useState("");
   const [message, setMessage] = useState<string>("");
   const [messageColor, setMessageColor] = useState<string>("#228B22");
+
+  const handleFileUpload = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "text/plain",
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled) {
+        return;
+      }
+
+      // Read the file content
+      const response = await fetch(result.assets[0].uri);
+      const text = await response.text();
+
+      // Parse the content and add words
+      const koreanWords = parseKoreanVocab(text);
+      let addedCount = 0;
+
+      koreanWords.forEach(word => {
+        if (addWord(word)) {
+          addedCount++;
+        }
+      });
+
+      setMessage(`Added ${addedCount} new words from file`);
+      setMessageColor("#228B22");
+    } catch (error) {
+      setMessage("Error uploading file");
+      setMessageColor("#cc0000");
+    }
+  };
 
   const handleAdd = () => {
     const trimmed = word.trim();
@@ -63,6 +99,14 @@ export default function AddWordsScreen() {
           text={`${words.length} ${words.length === 1 ? "word" : "words"}`}
         />
       </View>
+      <TouchableOpacity
+        style={styles.uploadButton}
+        onPress={handleFileUpload}
+        accessibilityLabel="Upload text file"
+      >
+        <IconSymbol name="square.and.arrow.down" size={20} color="#228B22" />
+        <ThemedText style={styles.uploadText}>Import from Text File</ThemedText>
+      </TouchableOpacity>
       <View style={styles.wordsList}>
         {words.length === 0 ? (
           <ThemedText style={styles.emptyText}>No words added yet.</ThemedText>
@@ -97,13 +141,15 @@ export default function AddWordsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    backgroundColor: "#181c20",
+    paddingTop: 16,
   },
   topRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
   topRowButton: {
     height: 48,
@@ -115,12 +161,11 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: "#228B22",
-    height: 48,
     width: 48,
-    borderRadius: 24,
-    alignItems: "center",
+    height: 48,
+    borderRadius: 8,
     justifyContent: "center",
-    marginLeft: 8,
+    alignItems: "center",
   },
   input: {
     flex: 1,
@@ -137,12 +182,14 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 8,
     marginLeft: 2,
+    paddingHorizontal: 16,
   },
   badgeContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
     marginBottom: 12,
     marginTop: 4,
+    paddingHorizontal: 16,
   },
   generateButton: {
     marginLeft: 8,
@@ -154,52 +201,70 @@ const styles = StyleSheet.create({
   },
   tableScroll: {
     flex: 1,
-    minHeight: 120,
     backgroundColor: "rgba(34, 139, 34, 0.03)",
-    borderRadius: 10,
-    marginTop: 8,
-    marginBottom: 8,
-    paddingHorizontal: 4,
   },
   tableContent: {
-    paddingBottom: 32,
+    paddingBottom: 16,
   },
   tableHeader: {
     flexDirection: "row",
     backgroundColor: "rgba(34, 139, 34, 0.13)",
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#228B22",
   },
   tableRow: {
     flexDirection: "row",
-    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(34, 139, 34, 0.08)",
+    borderBottomColor: "rgba(0,0,0,0.06)",
     paddingVertical: 8,
     paddingHorizontal: 4,
-    backgroundColor: "rgba(255,255,255,0.01)",
+    alignItems: "center",
   },
   tableCell: {
     flex: 1,
-    color: "#fff",
     fontSize: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
+    color: "#fff",
+    textAlign: "center",
+  },
+  buttonText: {
+    color: "#fff",
     textAlign: "center",
   },
   headerCell: {
-    fontWeight: "bold",
+    fontWeight: "700",
     color: "#228B22",
     fontSize: 16,
   },
+  wordItem: {
+    fontSize: 18,
+    marginVertical: 4,
+    color: "#333",
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: "rgba(34, 139, 34, 0.05)",
+  },
   emptyText: {
+    fontSize: 16,
     color: "#888",
-    fontStyle: "italic",
     textAlign: "center",
     marginTop: 24,
+  },
+  uploadText: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  uploadButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#228B22",
+    marginBottom: 16,
+    backgroundColor: "rgba(34, 139, 34, 0.1)",
+    marginHorizontal: 16,
   },
 });

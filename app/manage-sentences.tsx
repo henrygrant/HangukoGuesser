@@ -53,7 +53,30 @@ export default function SentencesScreen() {
       setShowAlert(true);
       return;
     }
-    generateSentences(words.filter(w => w.selected));
+
+    let selectedWords = words.filter(w => w.selected);
+    if (selectedWords.length === 0) {
+      selectedWords = words
+    }
+    setAlertConfig({
+      title: "Generate Sentences",
+      message: `Are you sure you want to generate sentences for ${selectedWords.length} word${selectedWords.length === 1 ? '' : 's'}? This action uses AI credits.`,
+      buttons: [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => setShowAlert(false)
+        },
+        {
+          text: "Generate",
+          onPress: () => {
+            setShowAlert(false);
+            generateSentences(selectedWords);
+          }
+        }
+      ]
+    });
+    setShowAlert(true);
   };
 
   const handleRemoveAllPress = () => {
@@ -93,20 +116,17 @@ export default function SentencesScreen() {
       <View style={styles.header}>
         <View style={styles.topRow}>
           <TouchableOpacity onPress={() => router.replace("/")}>
-            <ThemedText>← Back</ThemedText>
+            <ThemedText>← Home</ThemedText>
           </TouchableOpacity>
-          <ThemedText style={styles.title}>Sentences</ThemedText>
-          <View style={{ width: 50 }} />
-        </View>
-
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search sentences..."
-            placeholderTextColor="#666"
-          />
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Search sentences..."
+              placeholderTextColor="#666"
+            />
+          </View>
         </View>
 
         <View style={styles.badgeRow}>
@@ -122,7 +142,7 @@ export default function SentencesScreen() {
           )}
           <TouchableOpacity onPress={handleGeneratePress}>
             <Badge
-              text={isLoading ? "Generating..." : "Generate"}
+              text={isLoading ? "Generating..." : "Generate Sentences from Stored Words"}
               color={isLoading ? "#666" : "#228B22"}
             />
           </TouchableOpacity>
@@ -181,13 +201,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "600",
+    display: "flex",
   },
   searchContainer: {
     paddingVertical: 8,
+    flexGrow: 1,
+    marginLeft: 16,
   },
   searchInput: {
     height: 48,
