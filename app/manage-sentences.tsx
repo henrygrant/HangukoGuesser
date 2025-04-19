@@ -6,6 +6,7 @@ import { useSentenceList } from "@/hooks/useSentenceList";
 import SentenceDetail from "@/components/SentenceDetail";
 import { useState, useMemo } from "react";
 import { useRouter } from "expo-router";
+import Badge from "@/components/Badge";
 
 export default function SentencesScreen() {
   const { sentences, generateSentences, error, isLoading, removeSentence, removeAllSentences } = useSentenceList();
@@ -50,17 +51,11 @@ export default function SentencesScreen() {
       </View>
 
       <View style={styles.badgeContainer}>
-        <ThemedView style={styles.badge}>
-          {searchQuery ? (
-            <ThemedText style={styles.badgeText}>
-              {filteredSentences.length} of {sentences.length} {sentences.length === 1 ? "sentence" : "sentences"}
-            </ThemedText>
-          ) : (
-            <ThemedText style={styles.badgeText}>
-              {sentences.length} {sentences.length === 1 ? "sentence" : "sentences"}
-            </ThemedText>
-          )}
-        </ThemedView>
+        <Badge>
+          {searchQuery
+            ? `${filteredSentences.length} of ${sentences.length} ${sentences.length === 1 ? "sentence" : "sentences"}`
+            : `${sentences.length} ${sentences.length === 1 ? "sentence" : "sentences"}`}
+        </Badge>
         {sentences.length > 0 && (
           <TouchableOpacity
             style={styles.deleteAllButton}
@@ -184,16 +179,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 16,
-  },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  badgeText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#228B22",
   },
   deleteAllButton: {
     marginLeft: 12,

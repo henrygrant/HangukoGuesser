@@ -4,6 +4,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useWordList } from "@/hooks/useWordList";
+import Badge from "@/components/Badge";
 
 export default function AddWordsScreen() {
   const { words, addWord } = useWordList();
@@ -51,11 +52,9 @@ export default function AddWordsScreen() {
           <ThemedText style={[styles.message, { color: messageColor }]}>{message}</ThemedText>
         )}
         <View style={styles.badgeContainer}>
-          <ThemedView style={styles.badge}>
-            <ThemedText style={styles.badgeText}>
-              {words.length} {words.length === 1 ? "word" : "words"}
-            </ThemedText>
-          </ThemedView>
+          <Badge>
+            {words.length} {words.length === 1 ? "word" : "words"}
+          </Badge>
         </View>
       </View>
       <View style={styles.wordsList}>
@@ -139,16 +138,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     marginBottom: 12,
     marginTop: 4,
-  },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  badgeText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#228B22",
   },
   wordsList: {
     marginTop: 8,
