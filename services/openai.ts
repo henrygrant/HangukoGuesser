@@ -1,20 +1,28 @@
-import OpenAI from "openai";
+import { OpenAI } from "openai";
 import { Word, Sentence } from "@/types";
 
 // Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.EXPO_PUBLIC_OPENROUTER_API_KEY,
-  baseURL: process.env.EXPO_PUBLIC_OPENROUTER_BASE_URL,
-  dangerouslyAllowBrowser: true,
-});
+
+const baseURL = 'https://openrouter.ai/api/v1'
 
 export interface GeneratedResponse {
   sentences: Sentence[];
 }
 
 export async function generateKoreanSentence(
-  words: Word[]
+  words: Word[],
+  apiKey: string
 ): Promise<Sentence[]> {
+  if (!apiKey) {
+    throw new Error("OpenRouter API key is required");
+  }
+
+  const openai = new OpenAI({
+    apiKey,
+    baseURL,
+    dangerouslyAllowBrowser: true,
+  });
+
   try {
     const completion = await openai.chat.completions.create({
       model: "openai/gpt-4o",
@@ -66,15 +74,13 @@ export async function generateKoreanSentence(
     });
 
     const response = completion.choices[0].message.content;
-    console.log(response);
     if (!response) {
       throw new Error("No response from OpenAI");
     }
     const jsonResponse: GeneratedResponse = JSON.parse(response);
-    console.log("ai response:", jsonResponse);
     return jsonResponse.sentences;
   } catch (error) {
     console.error("Error generating Korean sentence:", error);
-    throw new Error("Failed to generate Korean sentence");
+    throw error;
   }
 }

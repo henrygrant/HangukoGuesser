@@ -3,12 +3,12 @@ import { StyleSheet, View, TextInput, TouchableOpacity, ScrollView } from "react
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useWordList } from "@/hooks/useWordList";
+import { useAppStore } from "@/stores/useAppStore";
 import { useRouter } from "expo-router";
 import Badge from "@/components/Badge";
 
 export default function AddWordsScreen() {
-  const { words, addWord } = useWordList();
+  const { words, addWord } = useAppStore();
   const router = useRouter();
   const [word, setWord] = useState("");
   const [message, setMessage] = useState<string>("");
@@ -37,7 +37,7 @@ export default function AddWordsScreen() {
       <View style={styles.topRow}>
         <TouchableOpacity
           style={styles.topRowButton}
-          onPress={() => router.push("/")}
+          onPress={() => router.replace("/")}
           accessibilityLabel="Go back home"
         >
           <ThemedText style={{ color: "#fff", fontSize: 16 }}>{"← Home"}</ThemedText>
@@ -59,9 +59,16 @@ export default function AddWordsScreen() {
         <ThemedText style={[styles.message, { color: messageColor }]}>{message}</ThemedText>
       )}
       <View style={styles.badgeContainer}>
-        <Badge>
-          {words.length} {words.length === 1 ? "word" : "words"}
-        </Badge>
+        <Badge
+          text={`${words.length} ${words.length === 1 ? "word" : "words"}`}
+        />
+        <TouchableOpacity
+          style={styles.generateButton}
+          onPress={() => router.push("/manage-sentences")}
+          accessibilityLabel="Go to manage sentences"
+        >
+          <Badge text="Generate Sentences" color="#228B22" />
+        </TouchableOpacity>
       </View>
       <View style={styles.wordsList}>
         {words.length === 0 ? (
@@ -144,6 +151,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     marginBottom: 12,
     marginTop: 4,
+  },
+  generateButton: {
+    marginLeft: 8,
   },
   wordsList: {
     marginTop: 8,

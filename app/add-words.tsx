@@ -3,11 +3,11 @@ import { StyleSheet, View, TextInput, TouchableOpacity, ScrollView } from "react
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useWordList } from "@/hooks/useWordList";
+import { useAppStore } from "@/stores/useAppStore";
 import Badge from "@/components/Badge";
 
 export default function AddWordsScreen() {
-  const { words, addWord } = useWordList();
+  const { words, addWord } = useAppStore();
   const [word, setWord] = useState("");
   const [message, setMessage] = useState<string>("");
   const [messageColor, setMessageColor] = useState<string>("#228B22");
@@ -52,9 +52,9 @@ export default function AddWordsScreen() {
           <ThemedText style={[styles.message, { color: messageColor }]}>{message}</ThemedText>
         )}
         <View style={styles.badgeContainer}>
-          <Badge>
-            {words.length} {words.length === 1 ? "word" : "words"}
-          </Badge>
+          <Badge
+            text={`${words.length} ${words.length === 1 ? "word" : "words"}`}
+          />
         </View>
       </View>
       <View style={styles.wordsList}>

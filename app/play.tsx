@@ -1,15 +1,15 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
-import { useSentenceList } from "@/hooks/useSentenceList";
 import { useState, useCallback, useEffect } from "react";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import SentenceCard from "@/components/SentenceCard";
 import { OptionsModal } from "@/components/OptionsModal";
 import { ThemedText } from "@/components/ThemedText";
 import { Sentence } from "@/types";
+import { useAppStore } from "@/stores/useAppStore";
 
 export default function PlayScreen() {
-  const { sentences, removeSentence } = useSentenceList();
+  const { sentences, removeSentence } = useAppStore();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [language, setLanguage] = useState<"korean" | "english">("korean");
 

@@ -1,31 +1,32 @@
 import React from "react";
-import { View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { ThemedText } from "./ThemedText";
 
 interface BadgeProps {
-  children: React.ReactNode;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
+  text: string;
+  color?: string;
+  style?: object;
+  textStyle?: object;
   testID?: string;
 }
 
-const Badge: React.FC<BadgeProps> = ({ children, style, textStyle, testID }) => (
-  <View style={[styles.badge, style]} testID={testID}>
-    <Text style={[styles.badgeText, textStyle]}>{children}</Text>
+const Badge: React.FC<BadgeProps> = ({ text, color = "#228B22", style, textStyle, testID }) => (
+  <View style={[styles.badge, { backgroundColor: `${color}22` }, style]} testID={testID}>
+    <ThemedText style={[styles.text, { color }, textStyle]}>{text}</ThemedText>
   </View>
 );
 
 const styles = StyleSheet.create({
   badge: {
+    paddingVertical: 6,
     paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: "rgba(34, 139, 34, 0.1)",
-    alignSelf: "flex-start",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  badgeText: {
+  text: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#228B22",
+    fontWeight: "600",
   },
 });
 

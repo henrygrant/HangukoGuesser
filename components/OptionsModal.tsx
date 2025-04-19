@@ -3,7 +3,6 @@ import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { useRouter } from "expo-router";
-import { IconSymbol } from "./ui/IconSymbol";
 
 interface OptionsModalProps {
   visible: boolean;
@@ -88,6 +87,17 @@ export function OptionsModal({
             accessibilityLabel="Go to Manage Sentences"
           >
             <ThemedText style={styles.addWordsText}>Manage Sentences</ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.addWordsButton}
+            onPress={() => {
+              onClose();
+              setTimeout(() => router.push("/manage-api-keys"), 300);
+            }}
+            accessibilityLabel="Go to Manage API Keys"
+          >
+            <ThemedText style={styles.addWordsText}>Manage API Keys</ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose} accessibilityLabel="Close Settings">

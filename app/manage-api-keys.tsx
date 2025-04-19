@@ -1,96 +1,85 @@
 import { useState } from "react";
-import { StyleSheet, View, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { StyleSheet, View, TextInput, TouchableOpacity } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useWordList } from "@/hooks/useWordList";
+import { useAppStore } from "@/stores/useAppStore";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import Badge from "@/components/Badge";
 
-export default function AddWordsScreen() {
-  const { words, addWord } = useWordList();
+export default function ManageApiKeysScreen() {
+  const { openrouterApiKey, elevenlabsApiKey, setOpenrouterApiKey, setElevenlabsApiKey } = useAppStore();
+  const [showOpenrouterKey, setShowOpenrouterKey] = useState(false);
+  const [showElevenlabsKey, setShowElevenlabsKey] = useState(false);
+  const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [word, setWord] = useState("");
-  const [message, setMessage] = useState<string>("");
-  const [messageColor, setMessageColor] = useState<string>("#228B22");
-
-  const handleAdd = () => {
-    const trimmed = word.trim();
-    if (!trimmed) {
-      setMessage("Please enter a word");
-      setMessageColor("#cc0000");
-      return;
-    }
-    const success = addWord(trimmed);
-    if (success) {
-      setWord("");
-      setMessage("Word added!");
-      setMessageColor("#228B22");
-    } else {
-      setMessage("This word already exists in the list");
-      setMessageColor("#cc0000");
-    }
-  };
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.topRow}>
-        <TouchableOpacity
-          style={styles.topRowButton}
-          onPress={() => router.push("/")}
-          accessibilityLabel="Go back home"
-        >
-          <ThemedText style={{ color: "#fff", fontSize: 16 }}>{"← Home"}</ThemedText>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          placeholder="Add a new Korean word..."
-          value={word}
-          onChangeText={setWord}
-          placeholderTextColor="#7f7f7f"
-          returnKeyType="done"
-          onSubmitEditing={handleAdd}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={handleAdd} accessibilityLabel="Add word">
-          <IconSymbol name="plus" size={24} color="#fff" />
-        </TouchableOpacity>
+    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <View style={styles.topRow}>
+          <TouchableOpacity onPress={() => router.replace("/")}>
+            <ThemedText>← Home</ThemedText>
+          </TouchableOpacity>
+          <ThemedText style={styles.title}>API Keys</ThemedText>
+          <View style={{ width: 50 }} />
+        </View>
       </View>
-      {!!message && (
-        <ThemedText style={[styles.message, { color: messageColor }]}>{message}</ThemedText>
-      )}
-      <View style={styles.badgeContainer}>
-        <Badge>
-          {words.length} {words.length === 1 ? "word" : "words"}
-        </Badge>
-      </View>
-      <View style={styles.wordsList}>
-        {words.length === 0 ? (
-          <ThemedText style={styles.emptyText}>No words added yet.</ThemedText>
-        ) : (
-          <ScrollView style={styles.tableScroll} contentContainerStyle={styles.tableContent} showsVerticalScrollIndicator={true}>
-            <View style={styles.tableHeader}>
-              <ThemedText style={[styles.tableCell, styles.headerCell]}>#</ThemedText>
-              <ThemedText style={[styles.tableCell, styles.headerCell]}>Word</ThemedText>
-              {typeof words[0] === "object" && words[0].english !== undefined && (
-                <ThemedText style={[styles.tableCell, styles.headerCell]}>English</ThemedText>
-              )}
-            </View>
-            {words.map((w, idx) => (
-              <View key={idx} style={styles.tableRow}>
-                <ThemedText style={styles.tableCell}>{idx + 1}</ThemedText>
-                <ThemedText style={styles.tableCell}>{typeof w === "string" ? w : w.value}</ThemedText>
-                {typeof w === "object" && w.english !== undefined && (
-                  <ThemedText style={styles.tableCell}>{w.english}</ThemedText>
-                )}
-              </View>
-            ))}
-            {/* Spacer to ensure last row is visible above bottom edge */}
-            <View style={{ height: 32 }} />
-          </ScrollView>
-        )}
+
+      <View style={styles.content}>
+        <View style={styles.inputContainer}>
+          <ThemedText style={styles.label}>OpenRouter API Key</ThemedText>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              value={openrouterApiKey}
+              onChangeText={setOpenrouterApiKey}
+              placeholder="Enter OpenRouter API key"
+              placeholderTextColor="#666"
+              secureTextEntry={!showOpenrouterKey}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity
+              onPress={() => setShowOpenrouterKey(!showOpenrouterKey)}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={showOpenrouterKey ? "eye-off" : "eye"}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <ThemedText style={styles.label}>ElevenLabs API Key</ThemedText>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              value={elevenlabsApiKey}
+              onChangeText={setElevenlabsApiKey}
+              placeholder="Enter ElevenLabs API key"
+              placeholderTextColor="#666"
+              secureTextEntry={!showElevenlabsKey}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity
+              onPress={() => setShowElevenlabsKey(!showElevenlabsKey)}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={showElevenlabsKey ? "eye-off" : "eye"}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </ThemedView>
-
   );
 }
 
@@ -100,11 +89,47 @@ const styles = StyleSheet.create({
     backgroundColor: "#181c20",
     padding: 16,
   },
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
   topRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  content: {
+    padding: 16,
+    gap: 24,
+  },
+  inputContainer: {
     gap: 8,
-    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+  },
+  input: {
+    flex: 1,
+    height: 48,
+    fontSize: 16,
+    color: "#fff"
+  },
+  eyeButton: {
+    padding: 8,
   },
   topRowButton: {
     height: 48,
@@ -122,16 +147,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 8,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: "#23282d",
-    color: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    height: 48,
-    fontSize: 16,
-    marginRight: 8,
   },
   message: {
     fontSize: 15,
