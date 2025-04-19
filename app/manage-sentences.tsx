@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 16,
+    gap: 16,
   },
   errorContainer: {
     backgroundColor: "#cc000022",

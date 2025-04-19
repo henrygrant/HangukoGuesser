@@ -3,6 +3,7 @@ import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { useRouter } from "expo-router";
+import { useAppStore } from "@/stores/useAppStore";
 
 interface OptionsModalProps {
   visible: boolean;
@@ -18,6 +19,8 @@ export function OptionsModal({
   setLanguage,
 }: OptionsModalProps) {
   const router = useRouter();
+  const { theme, setTheme } = useAppStore();
+
   return (
     <Modal
       animationType="fade"
@@ -62,6 +65,60 @@ export function OptionsModal({
                   ]}
                 >
                   English
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <ThemedText style={styles.sectionTitle}>Theme</ThemedText>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  theme === "light" && styles.buttonSelected,
+                ]}
+                onPress={() => setTheme("light")}
+              >
+                <ThemedText
+                  style={[
+                    styles.buttonText,
+                    theme === "light" && styles.buttonTextSelected,
+                  ]}
+                >
+                  Light
+                </ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  theme === "dark" && styles.buttonSelected,
+                ]}
+                onPress={() => setTheme("dark")}
+              >
+                <ThemedText
+                  style={[
+                    styles.buttonText,
+                    theme === "dark" && styles.buttonTextSelected,
+                  ]}
+                >
+                  Dark
+                </ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  theme === "system" && styles.buttonSelected,
+                ]}
+                onPress={() => setTheme("system")}
+              >
+                <ThemedText
+                  style={[
+                    styles.buttonText,
+                    theme === "system" && styles.buttonTextSelected,
+                  ]}
+                >
+                  System
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -121,7 +178,6 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     padding: 24,
     borderRadius: 16,
-    backgroundColor: "rgba(31,31,31,1)",
   },
   title: {
     fontSize: 24,

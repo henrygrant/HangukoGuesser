@@ -62,13 +62,6 @@ export default function AddWordsScreen() {
         <Badge
           text={`${words.length} ${words.length === 1 ? "word" : "words"}`}
         />
-        <TouchableOpacity
-          style={styles.generateButton}
-          onPress={() => router.push("/manage-sentences")}
-          accessibilityLabel="Go to manage sentences"
-        >
-          <Badge text="Generate Sentences" color="#228B22" />
-        </TouchableOpacity>
       </View>
       <View style={styles.wordsList}>
         {words.length === 0 ? (
@@ -104,7 +97,6 @@ export default function AddWordsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#181c20",
     padding: 16,
   },
   topRow: {

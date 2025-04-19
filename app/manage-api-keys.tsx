@@ -86,7 +86,6 @@ export default function ManageApiKeysScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#181c20",
     padding: 16,
   },
   header: {
@@ -130,89 +129,5 @@ const styles = StyleSheet.create({
   },
   eyeButton: {
     padding: 8,
-  },
-  topRowButton: {
-    height: 48,
-    minWidth: 48,
-    paddingHorizontal: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  addButton: {
-    backgroundColor: "#228B22",
-    height: 48,
-    width: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 8,
-  },
-  message: {
-    fontSize: 15,
-    fontWeight: "500",
-    marginBottom: 8,
-    marginLeft: 2,
-  },
-  badgeContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginBottom: 12,
-    marginTop: 4,
-  },
-  wordsList: {
-    marginTop: 8,
-    flex: 1,
-    minHeight: 120,
-  },
-  tableScroll: {
-    flex: 1,
-    minHeight: 120,
-    backgroundColor: "rgba(34, 139, 34, 0.03)",
-    borderRadius: 10,
-    marginTop: 8,
-    marginBottom: 8,
-    paddingHorizontal: 4,
-  },
-  tableContent: {
-    paddingBottom: 32,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    backgroundColor: "rgba(34, 139, 34, 0.13)",
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#228B22",
-  },
-  tableRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(34, 139, 34, 0.08)",
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    backgroundColor: "rgba(255,255,255,0.01)",
-  },
-  tableCell: {
-    flex: 1,
-    color: "#fff",
-    fontSize: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
-    textAlign: "center",
-  },
-  headerCell: {
-    fontWeight: "bold",
-    color: "#228B22",
-    fontSize: 16,
-  },
-  emptyText: {
-    color: "#888",
-    fontStyle: "italic",
-    textAlign: "center",
-    marginTop: 24,
   },
 });

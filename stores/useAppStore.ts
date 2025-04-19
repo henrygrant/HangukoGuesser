@@ -28,13 +28,39 @@ interface AppState {
   elevenlabsApiKey: string;
   setOpenrouterApiKey: (key: string) => void;
   setElevenlabsApiKey: (key: string) => void;
+
+  // Theme state
+  theme: "light" | "dark" | "system";
+  setTheme: (theme: "light" | "dark" | "system") => void;
 }
+
+const initialState: AppState = {
+  words: [],
+  sentences: [],
+  openrouterApiKey: "",
+  elevenlabsApiKey: "",
+  error: null,
+  isLoading: false,
+  theme: "system",
+  addWord: (word: string) => false,
+  removeWord: (word: string) => {},
+  toggleWordSelection: (word: string) => {},
+  initializeWords: () => {},
+  addSentence: (sentence: Sentence) => false,
+  removeSentence: (sentence: Sentence) => {},
+  removeAllSentences: () => {},
+  generateSentences: (words: Word[]) => Promise.resolve(null),
+  setError: (error: string | null) => {},
+  setOpenrouterApiKey: (key: string) => {},
+  setElevenlabsApiKey: (key: string) => {},
+  setTheme: (theme: "light" | "dark" | "system") => {},
+};
 
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
+      ...initialState,
       // Words state and actions
-      words: [],
       addWord: (word: string) => {
         const trimmedWord = word.trim();
         if (trimmedWord === "") {
@@ -83,9 +109,6 @@ export const useAppStore = create<AppState>()(
       },
 
       // Sentences state and actions
-      sentences: [],
-      error: null,
-      isLoading: false,
       addSentence: (sentence: Sentence) => {
         const trimmedSentence: Sentence = {
           english: sentence.english.trim(),
@@ -152,10 +175,11 @@ export const useAppStore = create<AppState>()(
       },
 
       // API Keys state and actions
-      openrouterApiKey: '',
-      elevenlabsApiKey: '',
       setOpenrouterApiKey: (key: string) => set({ openrouterApiKey: key }),
       setElevenlabsApiKey: (key: string) => set({ elevenlabsApiKey: key }),
+
+      // Theme state and actions
+      setTheme: (theme: "light" | "dark" | "system") => set({ theme }),
     }),
     {
       name: 'hanguko-storage',
