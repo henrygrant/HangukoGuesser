@@ -25,6 +25,7 @@ export default function AddWordsScreen() {
     message: string;
     buttons: { text: string; style?: "default" | "cancel"; onPress: () => void; }[];
   } | null>(null);
+  const [isGeneratingMetadata, setIsGeneratingMetadata] = useState(false);
 
   const handleFileUpload = async () => {
     try {
@@ -116,6 +117,7 @@ export default function AddWordsScreen() {
           onPress: async () => {
             setShowAlert(false);
             try {
+              setIsGeneratingMetadata(true);
               const updatedWords = await generateKoreanWordsMetadata(wordsWithoutData, openrouterApiKey);
               updateWords(updatedWords);
               setMessage("Metadata generated successfully!");
@@ -123,6 +125,8 @@ export default function AddWordsScreen() {
             } catch (error) {
               setMessage("Error generating metadata");
               setMessageColor("#cc0000");
+            } finally {
+              setIsGeneratingMetadata(false);
             }
           }
         }
@@ -172,12 +176,15 @@ export default function AddWordsScreen() {
           <ThemedText style={styles.uploadText}>Import from Text File</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.uploadButton}
+          style={[styles.uploadButton, isGeneratingMetadata && styles.disabledButton]}
           onPress={handleGenerateMetadata}
+          disabled={isGeneratingMetadata}
           accessibilityLabel="Generate metadata"
         >
-          <IconSymbol name="sparkles" size={20} color="#228B22" />
-          <ThemedText style={styles.uploadText}>Generate Missing Metadata</ThemedText>
+          <IconSymbol name="sparkles" size={20} color={isGeneratingMetadata ? "#666" : "#228B22"} />
+          <ThemedText style={[styles.uploadText, isGeneratingMetadata && styles.disabledText]}>
+            {isGeneratingMetadata ? "Loading Missing Metadata" : "Generate Missing Metadata"}
+          </ThemedText>
         </TouchableOpacity>
       </View>
       <View style={styles.wordsList}>
@@ -333,5 +340,12 @@ const styles = StyleSheet.create({
     color: "#888",
     textAlign: "center",
     marginTop: 24,
+  },
+  disabledButton: {
+    borderColor: "#666",
+    backgroundColor: "rgba(102, 102, 102, 0.1)",
+  },
+  disabledText: {
+    color: "#666",
   },
 });
