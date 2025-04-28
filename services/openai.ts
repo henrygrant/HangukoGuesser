@@ -24,28 +24,31 @@ export async function generateKoreanWordsMetadata(
   });
 
   try {
+    console.log('starting')
     const completion = await openai.chat.completions.create({
       model: "openai/gpt-4o",
       response_format: {
         type: "json_schema",
         json_schema: {
-          name: "word",
+          name: "words",
           schema: {
             type: "object",
-            words: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  value: { type: "string" },
-                  english: { type: "string" },
-                  type: { type: "string", enum: ["verb", "noun", "adjective", "adverb", "conjunction", "preposition", "pronoun", "other"]},
-                  past: { type: ["string", "null"]},
-                  present: { type: ["string", "null"]},
-                  future: { type: ["string", "null"]}, 
+            properties: {
+              words: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    value: { type: "string" },
+                    english: { type: "string" },
+                    type: { type: "string", enum: ["verb", "noun", "adjective", "adverb", "conjunction", "preposition", "pronoun", "other"] },
+                    past: { type: ["string", "null"] },
+                    present: { type: ["string", "null"] },
+                    future: { type: ["string", "null"] },
+                  },
+                  required: ["value", "english", "type"],
+                  additionalProperties: false,
                 },
-                required: ["value", "english", "type"],
-                additionalProperties: false,
               },
             },
             required: ["words"],
@@ -62,23 +65,23 @@ export async function generateKoreanWordsMetadata(
         {
           role: "user",
           content: `TASK: 
-            For the given list of words, generate some information about each word. The given word in korean should be the "value"
-            property. The word in english should be the "english" property. The type of word should be the "type" property. 
-            If the word is a verb, give the past, present, and future tense forms in the "past", "present", and "future" properties. 
+            For the given list of words, generate a list objects that represent information about each word. The given word in korean should be the "value"
+            property. The word in english should be the "english" property. The type of word should be the "type" property and should be one of ["verb", "noun", "adjective", "adverb", "conjunction", "preposition", "pronoun", "other"].
+            If the word is a verb, give the past, present, and future tense forms in the "past", "present", and "future" properties. The output should be valid json.
 
             INPUT: ${words.map(w => w.value).join(", ")}`
         },
       ],
       temperature: 0.7,
-      max_tokens: 100,
+      max_tokens: words.length * 100,
     });
-
+    console.log('finished')
     const response = completion.choices[0].message.content;
+
     if (!response) {
       throw new Error("No response from OpenAI");
     }
     const jsonResponse: GeneratedWordResponse = JSON.parse(response);
-    console.log(response)
     return jsonResponse.words
   } catch (error) {
     console.error("Error generating Korean word metadata:", error);

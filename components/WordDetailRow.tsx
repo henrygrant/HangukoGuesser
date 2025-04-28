@@ -1,19 +1,21 @@
 import { View, StyleSheet } from "react-native";
 import { ThemedText } from "./ThemedText";
+import { Word } from "@/types";
 
 interface WordDetailRowProps {
   index: number;
-  word: string | { value: string; english?: string };
+  word: Word;
 }
 
 export const WordDetailRow = ({ index, word }: WordDetailRowProps) => {
   return (
     <View style={styles.tableRow}>
-      <ThemedText style={styles.tableCell}>{index + 1}</ThemedText>
-      <ThemedText style={styles.tableCell}>{typeof word === "string" ? word : word.value}</ThemedText>
-      {typeof word === "object" && word.english !== undefined && (
-        <ThemedText style={styles.tableCell}>{word.english}</ThemedText>
-      )}
+      <ThemedText style={styles.tableCell}>{word.value}</ThemedText>
+      <ThemedText style={styles.tableCell}>{word.english ? word.english : ""}</ThemedText>
+      <ThemedText style={styles.tableCell}>{word.type ? word.type : ""}</ThemedText>
+      <ThemedText style={styles.tableCell}>{word.past ? word.past : ""}</ThemedText>
+      <ThemedText style={styles.tableCell}>{word.present ? word.present : ""}</ThemedText>
+      <ThemedText style={styles.tableCell}>{word.future ? word.future : ""}</ThemedText>
     </View>
   );
 }

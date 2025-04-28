@@ -19,7 +19,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    initializeWords();
+    // initializeWords();
     if (loaded) {
       SplashScreen.hideAsync();
     }

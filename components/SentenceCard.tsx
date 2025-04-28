@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View, Modal } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sentence } from "@/types";
 import { IconSymbol } from "./ui/IconSymbol";
 
@@ -18,6 +18,10 @@ export default function SentenceCard({ sentence, initialLanguage, onDelete }: Se
   const toggleLanguage = () => {
     setShowingKorean(!showingKorean);
   };
+
+  useEffect(() => {
+    setShowingKorean(initialLanguage === "korean");
+  }, [sentence, initialLanguage]);
 
   return (
     <>

@@ -12,6 +12,7 @@ interface AppState {
   removeWord: (word: string) => void;
   toggleWordSelection: (word: string) => void;
   initializeWords: () => void;
+  updateWords: (words: Word[]) => void;
 
   // Sentences state
   sentences: Sentence[];
@@ -43,17 +44,18 @@ const initialState: AppState = {
   isLoading: false,
   theme: "system",
   addWord: (word: string) => false,
-  removeWord: (word: string) => {},
-  toggleWordSelection: (word: string) => {},
-  initializeWords: () => {},
+  removeWord: (word: string) => { },
+  toggleWordSelection: (word: string) => { },
+  initializeWords: () => { },
+  updateWords: (words: Word[]) => { },
   addSentence: (sentence: Sentence) => false,
-  removeSentence: (sentence: Sentence) => {},
-  removeAllSentences: () => {},
+  removeSentence: (sentence: Sentence) => { },
+  removeAllSentences: () => { },
   generateSentences: (words: Word[]) => Promise.resolve(null),
-  setError: (error: string | null) => {},
-  setOpenrouterApiKey: (key: string) => {},
-  setElevenlabsApiKey: (key: string) => {},
-  setTheme: (theme: "light" | "dark" | "system") => {},
+  setError: (error: string | null) => { },
+  setOpenrouterApiKey: (key: string) => { },
+  setElevenlabsApiKey: (key: string) => { },
+  setTheme: (theme: "light" | "dark" | "system") => { },
 };
 
 export const useAppStore = create<AppState>()(
@@ -105,6 +107,15 @@ export const useAppStore = create<AppState>()(
               selected: false,
             }))
             .sort((a, b) => a.value.localeCompare(b.value)),
+        });
+      },
+      updateWords: (words: Word[]) => {
+        set((state) => {
+          return {
+            words: state.words.map(w => {
+              return words.find(word => word.value === w.value) || w;
+            }).sort((a, b) => a.value.localeCompare(b.value))
+          }
         });
       },
 

@@ -9,15 +9,22 @@ import Badge from "@/components/Badge";
 import * as DocumentPicker from 'expo-document-picker';
 import { parseKoreanVocab } from "@/services/anki";
 import { WordDetailRow } from '@/components/WordDetailRow';
-
-
+import { AlertDialog } from "@/components/AlertDialog";
+import { generateKoreanWordsMetadata } from "@/services/openai";
+import { Word } from "@/types";
 
 export default function AddWordsScreen() {
-  const { words, addWord } = useAppStore();
+  const { words, addWord, openrouterApiKey, updateWords } = useAppStore();
   const router = useRouter();
   const [word, setWord] = useState("");
   const [message, setMessage] = useState<string>("");
   const [messageColor, setMessageColor] = useState<string>("#228B22");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    title: string;
+    message: string;
+    buttons: { text: string; style?: "default" | "cancel"; onPress: () => void; }[];
+  } | null>(null);
 
   const handleFileUpload = async () => {
     try {
@@ -70,6 +77,60 @@ export default function AddWordsScreen() {
     }
   };
 
+  const handleGenerateMetadata = () => {
+    if (!openrouterApiKey) {
+      setAlertConfig({
+        title: "API Key Required",
+        message: "Please set your OpenRouter API key in Settings > Manage API Keys to generate metadata.",
+        buttons: [
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => setShowAlert(false)
+          },
+          {
+            text: "Set API Key",
+            onPress: () => {
+              setShowAlert(false);
+              router.push("/manage-api-keys")
+            }
+          }
+        ]
+      });
+      setShowAlert(true);
+      return;
+    }
+
+    const wordsWithoutData = words.filter(w => !w.english);
+    setAlertConfig({
+      title: "Generate Metadata",
+      message: `Are you sure you want to generate metadata for ${wordsWithoutData.length} word${wordsWithoutData.length === 1 ? '' : 's'}? This action uses AI credits.`,
+      buttons: [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => setShowAlert(false)
+        },
+        {
+          text: "Generate",
+          onPress: async () => {
+            setShowAlert(false);
+            try {
+              const updatedWords = await generateKoreanWordsMetadata(wordsWithoutData, openrouterApiKey);
+              updateWords(updatedWords);
+              setMessage("Metadata generated successfully!");
+              setMessageColor("#228B22");
+            } catch (error) {
+              setMessage("Error generating metadata");
+              setMessageColor("#cc0000");
+            }
+          }
+        }
+      ]
+    });
+    setShowAlert(true);
+  };
+
   return (
     <ThemedView style={styles.container}>
       <View style={styles.topRow}>
@@ -101,25 +162,36 @@ export default function AddWordsScreen() {
           text={`${words.length} ${words.length === 1 ? "word" : "words"}`}
         />
       </View>
-      <TouchableOpacity
-        style={styles.uploadButton}
-        onPress={handleFileUpload}
-        accessibilityLabel="Upload text file"
-      >
-        <IconSymbol name="square.and.arrow.down" size={20} color="#228B22" />
-        <ThemedText style={styles.uploadText}>Import from Text File</ThemedText>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={handleFileUpload}
+          accessibilityLabel="Upload text file"
+        >
+          <IconSymbol name="square.and.arrow.down" size={20} color="#228B22" />
+          <ThemedText style={styles.uploadText}>Import from Text File</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={handleGenerateMetadata}
+          accessibilityLabel="Generate metadata"
+        >
+          <IconSymbol name="sparkles" size={20} color="#228B22" />
+          <ThemedText style={styles.uploadText}>Generate Missing Metadata</ThemedText>
+        </TouchableOpacity>
+      </View>
       <View style={styles.wordsList}>
         {words.length === 0 ? (
           <ThemedText style={styles.emptyText}>No words added yet.</ThemedText>
         ) : (
           <ScrollView style={styles.tableScroll} contentContainerStyle={styles.tableContent} showsVerticalScrollIndicator={true}>
             <View style={styles.tableHeader}>
-              <ThemedText style={[styles.tableCell, styles.headerCell]}>#</ThemedText>
               <ThemedText style={[styles.tableCell, styles.headerCell]}>Word</ThemedText>
-              {typeof words[0] === "object" && words[0].english !== undefined && (
-                <ThemedText style={[styles.tableCell, styles.headerCell]}>English</ThemedText>
-              )}
+              <ThemedText style={[styles.tableCell, styles.headerCell]}>English</ThemedText>
+              <ThemedText style={[styles.tableCell, styles.headerCell]}>Type</ThemedText>
+              <ThemedText style={[styles.tableCell, styles.headerCell]}>Past</ThemedText>
+              <ThemedText style={[styles.tableCell, styles.headerCell]}>Present</ThemedText>
+              <ThemedText style={[styles.tableCell, styles.headerCell]}>Future</ThemedText>
             </View>
             {words.map((w, idx) => (
               <WordDetailRow key={idx} index={idx} word={w} />
@@ -129,10 +201,20 @@ export default function AddWordsScreen() {
           </ScrollView>
         )}
       </View>
+      {showAlert && alertConfig && (
+        <AlertDialog
+          visible={showAlert}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          buttons={alertConfig.buttons}
+        />
+      )}
     </ThemedView>
 
   );
 }
+
+const wordsWithoutData = (words: Word[]) => words.filter(w => !w.english);
 
 const styles = StyleSheet.create({
   container: {
@@ -187,8 +269,26 @@ const styles = StyleSheet.create({
     marginTop: 4,
     paddingHorizontal: 16,
   },
-  generateButton: {
-    marginLeft: 8,
+  buttonContainer: {
+    flexDirection: "column",
+    gap: 8,
+    marginBottom: 16,
+    marginHorizontal: 16,
+  },
+  uploadButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#228B22",
+    backgroundColor: "rgba(34, 139, 34, 0.1)",
+  },
+  uploadText: {
+    fontSize: 16,
+    fontWeight: "500",
   },
   wordsList: {
     marginTop: 8,
@@ -214,10 +314,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
   },
-  buttonText: {
-    color: "#fff",
-    textAlign: "center",
-  },
   headerCell: {
     fontWeight: "700",
     color: "#228B22",
@@ -237,22 +333,5 @@ const styles = StyleSheet.create({
     color: "#888",
     textAlign: "center",
     marginTop: 24,
-  },
-  uploadText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  uploadButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#228B22",
-    marginBottom: 16,
-    backgroundColor: "rgba(34, 139, 34, 0.1)",
-    marginHorizontal: 16,
   },
 });
