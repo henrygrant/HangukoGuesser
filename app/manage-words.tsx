@@ -8,6 +8,8 @@ import { useRouter } from "expo-router";
 import Badge from "@/components/Badge";
 import * as DocumentPicker from 'expo-document-picker';
 import { parseKoreanVocab } from "@/services/anki";
+import { WordDetailRow } from '@/components/WordDetailRow';
+
 
 
 export default function AddWordsScreen() {
@@ -120,13 +122,7 @@ export default function AddWordsScreen() {
               )}
             </View>
             {words.map((w, idx) => (
-              <View key={idx} style={styles.tableRow}>
-                <ThemedText style={styles.tableCell}>{idx + 1}</ThemedText>
-                <ThemedText style={styles.tableCell}>{typeof w === "string" ? w : w.value}</ThemedText>
-                {typeof w === "object" && w.english !== undefined && (
-                  <ThemedText style={styles.tableCell}>{w.english}</ThemedText>
-                )}
-              </View>
+              <WordDetailRow key={idx} index={idx} word={w} />
             ))}
             {/* Spacer to ensure last row is visible above bottom edge */}
             <View style={{ height: 32 }} />
@@ -211,14 +207,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(34, 139, 34, 0.13)",
     paddingVertical: 8,
     paddingHorizontal: 4,
-  },
-  tableRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.06)",
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    alignItems: "center",
   },
   tableCell: {
     flex: 1,
